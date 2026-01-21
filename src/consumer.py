@@ -1,8 +1,9 @@
+import json
 import logging
 import os
 import signal
 import sys
-import json
+from datetime import datetime
 from kafka import KafkaConsumer, KafkaProducer
 from processor import DataProcessor
 from storage import DataStorage
@@ -84,11 +85,8 @@ class IngestionService:
             dlq_message = {
                 "original_message": raw_value.decode("utf-8", errors="replace"),
                 "error": error_msg,
-                "timestamp": sys.getrefcount(0) # placeholder for actual timestamp if needed
+                "timestamp": datetime.now().isoformat()
             }
-            # Add real timestamp
-            from datetime import datetime
-            dlq_message["timestamp"] = datetime.now().isoformat()
             
             self.dlq_producer.send(KAFKA_DLQ_TOPIC, dlq_message)
             logger.info(f"Faulty message sent to topic: {KAFKA_DLQ_TOPIC}")

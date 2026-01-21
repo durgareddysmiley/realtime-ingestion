@@ -4,10 +4,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from typing import Dict, Any
+
 class DataStorage:
     """Handles persistence of sensor data to SQLite."""
 
-    def __init__(self, db_path="data/processed_data.db"):
+    def __init__(self, db_path: str = "data/processed_data.db"):
         self.db_path = db_path
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
@@ -29,16 +31,18 @@ class DataStorage:
             temperature REAL,
             humidity REAL,
             pressure REAL
-        )
+        );
+        CREATE INDEX IF NOT EXISTS idx_sensor_id ON sensor_readings(sensor_id);
+        CREATE INDEX IF NOT EXISTS idx_timestamp ON sensor_readings(timestamp);
         """
         try:
-            self.conn.execute(query)
+            self.conn.executescript(query)
             self.conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Error creating table: {e}")
             raise
 
-    def insert(self, data):
+    def insert(self, data: Dict[str, Any]):
         """Inserts a single sensor reading into the database."""
         insert_query = """
         INSERT INTO sensor_readings

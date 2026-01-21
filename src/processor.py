@@ -3,11 +3,11 @@ import logging
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+from typing import Dict, Any
 
 class DataProcessor:
     """Handles validation and transformation of sensor data."""
-
-    def process(self, raw_message: bytes) -> dict:
+    def process(self, raw_message: bytes) -> Dict[str, Any]:
         """
         Processes raw bytes from Kafka into a validated dictionary.
         
@@ -43,14 +43,12 @@ class DataProcessor:
         # Step 3: Validate sensor_id
         if not isinstance(data["sensor_id"], str) or not data["sensor_id"].strip():
             raise ValueError("sensor_id must be a non-empty string")
-
         # Step 4: Validate and convert timestamp
         try:
             # datetime.fromisoformat handles ISO8601
             data["timestamp"] = datetime.fromisoformat(data["timestamp"])
         except (ValueError, TypeError) as e:
             raise ValueError(f"Invalid timestamp format: {e}")
-
         # Step 5: Validate numeric fields
         for key in ["temperature", "humidity", "pressure"]:
             if not isinstance(data[key], (int, float)):
