@@ -21,3 +21,17 @@ services:
       - kafka
     volumes:
       - ./data:/app/data
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC=sensor_data
+      - KAFKA_DLQ_TOPIC=sensor_data_dlq
+      - DB_PATH=data/processed_data.db
+
+  producer:
+    build: .
+    command: python src/producer.py
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC=sensor_data

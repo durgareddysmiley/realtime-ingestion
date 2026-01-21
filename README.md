@@ -1,38 +1,88 @@
-# Real-Time Sensor Data Ingestion using Kafka
+# Real-time Sensor Data Ingestion Microservice
 
-## Project Overview
-This project implements a Python-based real-time data ingestion microservice that consumes sensor data from an Apache Kafka topic, validates and transforms the data, and stores it in a SQLite database for further analysis.
+A robust, containerized Python-based microservice that consumes real-time sensor data from Apache Kafka, performs schema validation and transformation, and persists the results to a SQLite database.
 
-## Architecture
-- Producer generates synthetic sensor data
-- Kafka streams the data
-- Consumer processes messages using a consumer group
-- Data is validated and stored in SQLite
+## 🚀 Key Features
 
-## Project Structure
+- **Event-Driven Architecture**: Leverages Apache Kafka for high-throughput data streaming.
+- **Robust Processing**: Includes a dedicated `DataProcessor` module for rigorous schema and type validation.
+- **Dead Letter Queue (DLQ)**: Fault tolerance mechanism that redirects invalid messages to a separate Kafka topic for debugging.
+- **Containerized**: Fully orchestrated using Docker Compose (Zookeeper, Kafka, Producer, Consumer).
+- **Graceful Shutdown**: Properly handles termination signals to ensure data integrity and offset commitment.
+- **Unit Tested**: Comprehensive test suite for processing and storage logic.
+
+## 🛠 Tech Stack
+
+- **Lanuage**: Python 3.9+
+- **Message Broker**: Apache Kafka
+- **Database**: SQLite
+- **Infrastructure**: Docker, Docker Compose
+- **Testing**: PyTest
+
+## 📦 Project Structure
+
+```text
 realtime-ingestion/
 ├── src/
-│   ├── producer.py
-│   ├── consumer.py
-│   ├── processor.py
-│   └── storage.py
-├── data/
-├── tests/
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
+│   ├── consumer.py        # Main entry point, coordinates data flow
+│   ├── processor.py       # Validation and transformation logic
+│   ├── storage.py         # SQLite persistence logic
+│   └── producer.py        # Synthetic data generator
+├── data/                  # Persistent storage directory
+├── tests/                 # Unit test suite
+├── Dockerfile             # Container configuration
+├── docker-compose.yml     # Service orchestration
+├── requirements.txt       # Python dependencies
+├── ARCHITECTURE.md        # Detailed technical overview
+└── README.md              # Project documentation
+```
 
-## Setup Instructions
-1. Install Docker and Docker Compose
-2. Run: docker-compose up --build
+## 🚦 Getting Started
 
-## Running Producer
-docker-compose exec ingestion python src/producer.py
+### Prerequisites
 
-## Verifying Data
-sqlite3 data/processed_data.db
-SELECT * FROM sensor_readings;
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Conclusion
-This project demonstrates a complete real-time data ingestion pipeline using Kafka and Docker.
+### Installation & Running
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repo_url>
+   cd realtime-ingestion
+   ```
+
+2. **Start the pipeline**:
+   ```bash
+   docker-compose up --build
+   ```
+   This will launch Zookeeper, Kafka, the synthetic data producer, and the ingestion service.
+
+### Verifying the Data
+
+You can verify that data is being processed and stored by querying the SQLite database inside the `ingestion` container:
+
+```bash
+docker-compose exec ingestion sqlite3 data/processed_data.db "SELECT * FROM sensor_readings LIMIT 10;"
+```
+
+### Running Tests
+
+To run the unit tests locally:
+
+```bash
+# Setup environment
+pip install -r requirements.txt
+export PYTHONPATH=$PYTHONPATH:./src
+
+# Run tests
+pytest tests/
+```
+
+## 📐 Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for a detailed breakdown of the system components and data flow diagrams.
+
+## 🛡 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
